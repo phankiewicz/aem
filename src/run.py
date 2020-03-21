@@ -1,8 +1,10 @@
 import argparse
 import math
+import os
 
 from greedy import nn_greedy_tsp
 from importer import create_distance_matrix, import_vertices_coordinates
+from texttable import Texttable
 from visualization import visualize_cycle_and_vertices
 
 
@@ -33,8 +35,9 @@ def run_nn_gready_tsp(distance_matrix, vertices_coordinates):
 def run():
     args = get_argument_parser().parse_args()
 
+    table = Texttable()
+    table.header(['Name', 'Min', 'Average', 'Max'])
     for input_file in args.input_files:
-        print(input_file.name)
         vertices_coordinates = import_vertices_coordinates(input_file)
         distance_matrix = create_distance_matrix(vertices_coordinates)
         results = run_nn_gready_tsp(distance_matrix, vertices_coordinates)
@@ -42,12 +45,12 @@ def run():
         best_cycle, min_length = min(results, key=lambda x: x[1])
         average = sum([length for _, length in results]) / len(results)
         _, max_length = max(results, key=lambda x: x[1])
-
-        print(f'Min: {min_length}')
-        print(f'Average: {average}')
-        print(f'Max: {max_length}')
+        table.add_row(
+            [os.path.basename(input_file.name), min_length, average, max_length]
+        )
         if args.visualize:
             visualize_cycle_and_vertices(best_cycle, vertices_coordinates)
+    print(table.draw())
 
 
 if __name__ == '__main__':
