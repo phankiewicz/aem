@@ -8,8 +8,8 @@ def round_to_integer_mathematically(value):
     return Decimal(str(value)).quantize(Decimal('1.'), rounding=ROUND_HALF_UP)
 
 
-def import_vertices_coordinates(file_path):
-    with open(file_path) as f:
+def import_vertices_coordinates(file_wrapper):
+    with file_wrapper as f:
         vertices_coordinates = []
         for index, line in enumerate(f):
             if index >= 7 and not line.startswith('EOF'):
@@ -41,6 +41,6 @@ def create_distance_matrix(vertices_coordinates):
     return matrix
 
 
-def import_distance_matrix(file_path):
-    vertices_coordinates = import_vertices_coordinates(file_path)
+def import_distance_matrix(file_wrapper):
+    vertices_coordinates = import_vertices_coordinates(file_wrapper)
     return create_distance_matrix(vertices_coordinates)
