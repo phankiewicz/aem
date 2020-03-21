@@ -14,6 +14,7 @@ def get_argument_parser():
         type=open,
         help='Specify list of input files\' paths',
     )
+    parser.add_argument('--visualize', action='store_true')
     return parser
 
 
@@ -45,8 +46,8 @@ def run():
         print(f'Min: {min_length}')
         print(f'Average: {average}')
         print(f'Max: {max_length}')
-
-        visualize_cycle_and_vertices(best_cycle, vertices_coordinates)
+        if args.visualize:
+            visualize_cycle_and_vertices(best_cycle, vertices_coordinates)
 
 
 if __name__ == '__main__':
