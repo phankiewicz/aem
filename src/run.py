@@ -12,6 +12,12 @@ from visualization import visualize_cycle_and_vertices
 def get_argument_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument(
+        '--algorithm',
+        choices=get_algorithms_dict().keys(),
+        required=True,
+        help='Specify algorithm to be used',
+    )
+    parser.add_argument(
         '--input_files',
         nargs='+',
         type=open,
@@ -45,6 +51,10 @@ def run_greedy_cycle_tsp(distance_matrix, vertices_coordinates):
     return results
 
 
+def get_algorithms_dict():
+    return {'nn_greedy': run_nn_gready_tsp, 'greedy_cycle': run_greedy_cycle_tsp}
+
+
 def run():
     args = get_argument_parser().parse_args()
 
@@ -55,7 +65,8 @@ def run():
         print(instance_name)
         vertices_coordinates = import_vertices_coordinates(input_file)
         distance_matrix = create_distance_matrix(vertices_coordinates)
-        results = run_greedy_cycle_tsp(distance_matrix, vertices_coordinates)
+        run_function = get_algorithms_dict()[args.algorithm]
+        results = run_function(distance_matrix, vertices_coordinates)
 
         best_cycle, min_length = min(results, key=lambda x: x[1])
         average = sum([length for _, length in results]) / len(results)
