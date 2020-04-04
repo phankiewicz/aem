@@ -15,8 +15,12 @@ def swap_outer_verices(cycle_vertices, other_vertices):
 
     return cycle_vertices, other_vertices
 
-def swap_inner_vertices(cycle_vertices):
-    pass
+def swap_inner_vertices(cycle_vertices, first, second):
+    first_index = cycle_vertices.index(first)
+    second_index = cycle_vertices.index(second)
+    cycle_vertices[first_index], cycle_vertices[second_index] = cycle_vertices[second_index], cycle_vertices[first_index]
+
+    return swap_inner_vertices
 
 def swap_edges(cycle_vertices):
     pass
