@@ -5,7 +5,15 @@ import numpy as np
 import random
 
 def swap_outer_verices(cycle_vertices, other_vertices):
-    pass
+    new_vertex = random.choice(other_vertices)
+    other_vertices.remove(new_vertex)
+
+    old_vertex = random.choice(cycle_vertices)
+
+    cycle_vertices[words.index(old_vertex)] = new_vertex
+    other_vertices.append(old_vertex)
+
+    return cycle_vertices, other_vertices
 
 def swap_inner_vertices(cycle_vertices):
     pass
