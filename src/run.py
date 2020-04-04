@@ -3,6 +3,7 @@ import math
 import os
 
 from greedy import greedy_cycle_tsp, nn_greedy_tsp, regret_1_greedy_cycle_tsp
+from local import local_greedy_tsp
 from importer import create_distance_matrix, import_vertices_coordinates
 from texttable import Texttable
 from tqdm import tqdm
@@ -50,6 +51,17 @@ def run_greedy_cycle_tsp(distance_matrix, vertices_coordinates):
         results.append((cycle_vertices, cycle_length))
     return results
 
+def run_greedy_local_tsp(distance_matrix, vertices_coordinates):
+    results = []
+    for index, _ in enumerate(tqdm(vertices_coordinates)):
+        cycle_vertices, cycle_length = local_greedy_tsp(distance_matrix, index)
+        assert cycle_vertices[0] == cycle_vertices[-1]
+        assert len(cycle_vertices) - 1 == len(set(cycle_vertices))
+        _, distance_matrix_width = distance_matrix.shape
+        assert len(cycle_vertices) - 1 == math.ceil(0.5 * distance_matrix_width)
+        results.append((cycle_vertices, cycle_length))
+    return results
+
 
 def run_regret_1_greedy_cycle_tsp(distance_matrix, vertices_coordinates):
     results = []
@@ -68,6 +80,7 @@ def get_algorithms_dict():
         'nn_greedy': run_nn_gready_tsp,
         'greedy_cycle': run_greedy_cycle_tsp,
         'regret_1_greedy_cycle': run_regret_1_greedy_cycle_tsp,
+        'greedy_local': run_greedy_local_tsp,
     }
 
 
