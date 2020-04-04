@@ -41,10 +41,11 @@ def local_search_greedy(distance_matrix):
 
         best_diff = 0
         best_swap = []
-        for swap_index1, swap_index2 in itertools.combinations(
-            range(len(solution)),
-            2,
-        ):
+        combinations = list(itertools.combinations(
+            range(len(solution)), 2
+        ))
+
+        for swap_index1, swap_index2 in random.sample(combinations, len(combinations)):
             diff = swap_edges_diff(
                 distance_matrix, solution, swap_index1, swap_index2
             )
