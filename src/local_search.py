@@ -13,7 +13,7 @@ def calculate_cycle_length(cycle_vertices, distance_matrix):
         for vertex1, vertex2 in zip(cycle_vertices, cycle_vertices[1:])
     ])
 
-def swap_outer_vertices_diff(distance_matrix, solution, index_old, index_new):
+def swap_outer_vertices_diff(distance_matrix, solution, index_old, new_edge_start):
     
     old_edge2_index = index_old - 1
     if(old_edge2_index < 0):
@@ -21,8 +21,6 @@ def swap_outer_vertices_diff(distance_matrix, solution, index_old, index_new):
 
     old_edge_start = solution[index_old]
     old_edge1_end, old_edge2_end = solution[old_edge2_index], solution[(index_old + 1) % len(solution)]
-
-    new_edge_start = solution[index_new]
 
     return (
         distance_matrix[new_edge_start, old_edge1_end]
@@ -50,14 +48,16 @@ def local_search_greedy(distance_matrix):
     vertices = list(range(matrix_width))
 
     solution = random.sample(vertices, number_of_vertices_required)
+    
 
     improvement = True
 
     while improvement:
         improvement = False
-
+        outer_improvement = False
         best_diff = 0
         best_swap = []
+        
         combinations = list(itertools.combinations(
             range(len(solution)), 2
         ))
@@ -71,15 +71,34 @@ def local_search_greedy(distance_matrix):
                 best_diff = diff
                 best_swap = [swap_index1, swap_index2]
                 improvement = True
-                break
+        
+        other_vertices = [i for i in range(0, matrix_width) if i not in solution]
+        outer_combinations = list(itertools.product(range(len(solution)), other_vertices))
 
-        if improvement:
-            swap_index1, swap_index2 = best_swap
-            solution = (
-                solution[:swap_index1+1]
-                + list(reversed(solution[swap_index1+1: swap_index2+1]))
-                + solution[swap_index2+1:]
+        for old_vertex_index, new_vertex in random.sample(outer_combinations, len(outer_combinations)): 
+            
+            diff = swap_outer_vertices_diff(
+                distance_matrix, solution, old_vertex_index, new_vertex
             )
+       
+            if diff < best_diff:
+                best_diff = diff
+                best_swap = [old_vertex_index, new_vertex]
+                outer_improvement = True
+                improvement = True
+         
+        if improvement:
+            if outer_improvement:
+                old_vertex_index, new_vertex = best_swap
+                solution[old_vertex_index] = new_vertex
+            else:
+                swap_index1, swap_index2 = best_swap
+                solution = (
+                    solution[:swap_index1+1]
+                    + list(reversed(solution[swap_index1+1: swap_index2+1]))
+                    + solution[swap_index2+1:]
+                )
+
 
     solution.append(solution[0])
     return solution, calculate_cycle_length(solution, distance_matrix)
