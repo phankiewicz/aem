@@ -54,6 +54,7 @@ def local_search_greedy(distance_matrix):
                 best_diff = diff
                 best_swap = [swap_index1, swap_index2]
                 improvement = True
+                break
 
         if improvement:
             swap_index1, swap_index2 = best_swap
