@@ -10,8 +10,6 @@ from local_search import (
     local_search_steepest,
     swap_vertices,
     swap_vertices_diff,
-    swap_edges,
-    swap_edges_diff
 )
 from texttable import Texttable
 from tqdm import tqdm
@@ -74,9 +72,13 @@ def run_regret_1_greedy_cycle_tsp(distance_matrix, vertices_coordinates):
 
 def run_local_search_greedy(distance_matrix, vertices_coordinates):
     results = []
+    diff_function = swap_vertices_diff
+    swap_function = swap_vertices
     for _ in tqdm(vertices_coordinates):
         start_time = time.time()
-        cycle_vertices, cycle_length = local_search_greedy(distance_matrix)
+        cycle_vertices, cycle_length = local_search_greedy(
+            distance_matrix, diff_function, swap_function
+        )
         assert cycle_vertices[0] == cycle_vertices[-1]
         assert len(cycle_vertices) - 1 == len(set(cycle_vertices))
         _, distance_matrix_width = distance_matrix.shape
@@ -87,8 +89,6 @@ def run_local_search_greedy(distance_matrix, vertices_coordinates):
 
 def run_local_search_steepest(distance_matrix, vertices_coordinates):
     results = []
-    #diff_function = swap_edges_diff
-    #swap_function = swap_edges
     diff_function = swap_vertices_diff
     swap_function = swap_vertices
     for _ in tqdm(vertices_coordinates):

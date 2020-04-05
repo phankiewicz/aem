@@ -78,10 +78,10 @@ def swap_vertices_diff(distance_matrix, solution, index1, index2):
         + get_distance(distance_matrix, element2, next_element2)
     )
 
-    if(index1 + 1 == index2):
-        next_element1,  previous_element2 = previous_element2, next_element1
+    if index1 + 1 == index2:
+        next_element1, previous_element2 = previous_element2, next_element1
 
-    if(index1 == 0 and index2 == len(solution) - 1):
+    if index1 == 0 and index2 == len(solution) - 1:
         previous_element1, next_element2 = next_element2, previous_element1
 
     new_length = (
@@ -111,7 +111,6 @@ def local_search_steepest(distance_matrix, diff_function, swap_function):
 
     improvement = True
 
-    last_swap = (-1, -1)
     while improvement:
         improvement = False
         outer_improvement = False
@@ -129,7 +128,7 @@ def local_search_steepest(distance_matrix, diff_function, swap_function):
             diff = diff_function(distance_matrix, solution, swap_index1, swap_index2)
 
             if diff < best_diff:
-                #print("prev: ", best_diff, "curr:", diff)
+                # print("prev: ", best_diff, "curr:", diff)
                 best_diff = diff
                 best_swap = [swap_index1, swap_index2]
                 improvement = True
@@ -160,15 +159,12 @@ def local_search_steepest(distance_matrix, diff_function, swap_function):
             else:
                 swap_index1, swap_index2 = best_swap
                 solution = swap_function(solution, swap_index1, swap_index2)
-                #if best_swap == last_swap:
-                    #break
-                #last_swap = best_swap
 
     solution.append(solution[0])
     return solution, calculate_cycle_length(solution, distance_matrix)
 
 
-def local_search_greedy(distance_matrix):
+def local_search_greedy(distance_matrix, diff_function, swap_function):
     _, matrix_width = distance_matrix.shape
     number_of_vertices_required = math.ceil(0.5 * matrix_width)
 
@@ -205,7 +201,7 @@ def local_search_greedy(distance_matrix):
                     swap_index1, swap_index2 = inner_swap[inner_next_id]
                 except Exception:
                     pass
-                diff = swap_edges_diff(
+                diff = diff_function(
                     distance_matrix, solution, swap_index1, swap_index2
                 )
 
@@ -241,11 +237,7 @@ def local_search_greedy(distance_matrix):
                 solution[old_vertex_index] = new_vertex
             else:
                 swap_index1, swap_index2 = best_swap
-                solution = (
-                    solution[: swap_index1 + 1]
-                    + list(reversed(solution[swap_index1 + 1 : swap_index2 + 1]))
-                    + solution[swap_index2 + 1 :]
-                )
+                solution = swap_function(solution, swap_index1, swap_index2)
 
     solution.append(solution[0])
     return solution, calculate_cycle_length(solution, distance_matrix)
