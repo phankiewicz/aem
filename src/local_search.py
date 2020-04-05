@@ -77,6 +77,13 @@ def swap_vertices_diff(distance_matrix, solution, index1, index2):
         + get_distance(distance_matrix, previous_element2, element2)
         + get_distance(distance_matrix, element2, next_element2)
     )
+
+    if(index1 + 1 == index2):
+        next_element1,  previous_element2 = previous_element2, next_element1
+
+    if(index1 == 0 and index2 == len(solution) - 1):
+        previous_element1, next_element2 = next_element2, previous_element1
+
     new_length = (
         get_distance(distance_matrix, previous_element1, element2)
         + get_distance(distance_matrix, element2, next_element1)
@@ -122,6 +129,7 @@ def local_search_steepest(distance_matrix, diff_function, swap_function):
             diff = diff_function(distance_matrix, solution, swap_index1, swap_index2)
 
             if diff < best_diff:
+                #print("prev: ", best_diff, "curr:", diff)
                 best_diff = diff
                 best_swap = [swap_index1, swap_index2]
                 improvement = True
@@ -152,9 +160,9 @@ def local_search_steepest(distance_matrix, diff_function, swap_function):
             else:
                 swap_index1, swap_index2 = best_swap
                 solution = swap_function(solution, swap_index1, swap_index2)
-                if best_swap == last_swap:
-                    break
-                last_swap = best_swap
+                #if best_swap == last_swap:
+                    #break
+                #last_swap = best_swap
 
     solution.append(solution[0])
     return solution, calculate_cycle_length(solution, distance_matrix)
