@@ -129,6 +129,7 @@ def run():
             'Max time [s]',
         ]
     )
+    solutions = []
     for input_file in args.input_files:
         instance_name = os.path.basename(input_file.name)
         print(instance_name)
@@ -156,9 +157,12 @@ def run():
                 max_time,
             ]
         )
-        if args.visualize:
-            visualize_cycle_and_vertices(best_cycle, vertices_coordinates)
+        solutions.append((best_cycle, vertices_coordinates))
     print(table.draw())
+    if args.visualize:
+        for solution in solutions:
+            best_cycle, vertices_coordinates = solution
+            visualize_cycle_and_vertices(best_cycle, vertices_coordinates)
 
 
 if __name__ == '__main__':
