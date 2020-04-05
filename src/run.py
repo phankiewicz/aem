@@ -8,8 +8,8 @@ from importer import create_distance_matrix, import_vertices_coordinates
 from local_search import (
     local_search_greedy,
     local_search_steepest,
-    swap_edges,
-    swap_edges_diff,
+    swap_vertices,
+    swap_vertices_diff,
 )
 from texttable import Texttable
 from tqdm import tqdm
@@ -85,8 +85,10 @@ def run_local_search_greedy(distance_matrix, vertices_coordinates):
 
 def run_local_search_steepest(distance_matrix, vertices_coordinates):
     results = []
-    diff_function = swap_edges_diff
-    swap_function = swap_edges
+    # diff_function = swap_edges_diff
+    # swap_function = swap_edges
+    diff_function = swap_vertices_diff
+    swap_function = swap_vertices
     for _ in tqdm(vertices_coordinates):
         start_time = time.time()
         cycle_vertices, cycle_length = local_search_steepest(
