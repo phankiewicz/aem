@@ -13,6 +13,23 @@ def calculate_cycle_length(cycle_vertices, distance_matrix):
         for vertex1, vertex2 in zip(cycle_vertices, cycle_vertices[1:])
     ])
 
+def swap_outer_vertices_diff(distance_matrix, solution, index_old, index_new):
+    
+    old_edge2_index = index_old - 1
+    if(old_edge2_index < 0):
+        old_edge2_index = len(solution) - 1
+
+    old_edge_start = solution[index_old]
+    old_edge1_end, old_edge2_end = solution[old_edge2_index], solution[(index_old + 1) % len(solution)]
+
+    new_edge_start = solution[index_new]
+
+    return (
+        distance_matrix[new_edge_start, old_edge1_end]
+        + distance_matrix[new_edge_start, old_edge2_end]
+        - distance_matrix[old_edge_start, old_edge1_end]
+        - distance_matrix[old_edge_start, old_edge2_end]
+    )
 
 def swap_edges_diff(distance_matrix, solution, index1, index2):
     edge1_start, edge1_end = solution[index1], solution[(index1 + 1) % len(solution)]
