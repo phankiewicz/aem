@@ -5,7 +5,7 @@ import time
 
 from greedy import greedy_cycle_tsp, nn_greedy_tsp, regret_1_greedy_cycle_tsp
 from importer import create_distance_matrix, import_vertices_coordinates
-from local_search import local_search_greedy, local_search_greedy_steepest
+from local_search import local_search_greedy, local_search_steepest
 from texttable import Texttable
 from tqdm import tqdm
 from visualization import visualize_cycle_and_vertices
@@ -78,11 +78,11 @@ def run_local_search_greedy(distance_matrix, vertices_coordinates):
     return results
 
 
-def run_local_search_greedy_steepest(distance_matrix, vertices_coordinates):
+def run_local_search_steepest(distance_matrix, vertices_coordinates):
     results = []
     for _ in tqdm(vertices_coordinates):
         start_time = time.time()
-        cycle_vertices, cycle_length = local_search_greedy_steepest(distance_matrix)
+        cycle_vertices, cycle_length = local_search_steepest(distance_matrix)
         assert cycle_vertices[0] == cycle_vertices[-1]
         assert len(cycle_vertices) - 1 == len(set(cycle_vertices))
         _, distance_matrix_width = distance_matrix.shape
@@ -97,7 +97,7 @@ def get_algorithms_dict():
         'greedy_cycle': run_greedy_cycle_tsp,
         'regret_1_greedy_cycle': run_regret_1_greedy_cycle_tsp,
         'local_search_greedy': run_local_search_greedy,
-        'local_search_greedy_steepest': run_local_search_greedy_steepest,
+        'local_search_steepest': run_local_search_steepest,
     }
 
 
