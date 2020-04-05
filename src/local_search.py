@@ -44,7 +44,15 @@ def swap_edges_diff(distance_matrix, solution, index1, index2):
     )
 
 
-def local_search_steepest(distance_matrix, calculate_swap_diff):
+def swap_edges(solution, swap_index1, swap_index2):
+    return (
+        solution[: swap_index1 + 1]
+        + list(reversed(solution[swap_index1 + 1 : swap_index2 + 1]))
+        + solution[swap_index2 + 1 :]
+    )
+
+
+def local_search_steepest(distance_matrix, diff_function, swap_function):
     _, matrix_width = distance_matrix.shape
     number_of_vertices_required = math.ceil(0.5 * matrix_width)
 
@@ -63,7 +71,7 @@ def local_search_steepest(distance_matrix, calculate_swap_diff):
         combinations = list(itertools.combinations(range(len(solution)), 2))
 
         for swap_index1, swap_index2 in random.sample(combinations, len(combinations)):
-            diff = swap_edges_diff(distance_matrix, solution, swap_index1, swap_index2)
+            diff = diff_function(distance_matrix, solution, swap_index1, swap_index2)
 
             if diff < best_diff:
                 best_diff = diff
@@ -95,11 +103,7 @@ def local_search_steepest(distance_matrix, calculate_swap_diff):
                 solution[old_vertex_index] = new_vertex
             else:
                 swap_index1, swap_index2 = best_swap
-                solution = (
-                    solution[: swap_index1 + 1]
-                    + list(reversed(solution[swap_index1 + 1 : swap_index2 + 1]))
-                    + solution[swap_index2 + 1 :]
-                )
+                solution = swap_function(solution, swap_index1, swap_index2)
 
     solution.append(solution[0])
     return solution, calculate_cycle_length(solution, distance_matrix)
