@@ -60,16 +60,16 @@ def get_distance(distance_matrix, index1, index2):
 
 def swap_vertices_diff(distance_matrix, solution, index1, index2):
     assert index1 < index2
+    solution_length = len(solution)
     element1, element2 = solution[index1], solution[index2]
-    if index1 == 0:
-        previous_element1, next_element1 = -1, solution[index1 + 1]
-    else:
-        previous_element1, next_element1 = solution[index1 - 1], solution[index1 + 1]
-
-    if index2 == len(solution) - 1:
-        previous_element2, next_element2 = solution[index2 - 1], -1
-    else:
-        previous_element2, next_element2 = solution[index2 - 1], solution[index2 + 1]
+    previous_element1, next_element1 = (
+        solution[(index1 - 1) % solution_length],
+        solution[(index1 + 1) % solution_length],
+    )
+    previous_element2, next_element2 = (
+        solution[(index2 - 1) % solution_length],
+        solution[(index2 + 1) % solution_length],
+    )
 
     current_length = (
         get_distance(distance_matrix, previous_element1, element1)
