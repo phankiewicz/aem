@@ -101,7 +101,9 @@ def swap_vertices(solution, swap_index1, swap_index2):
     return solution
 
 
-def local_search_steepest(distance_matrix, diff_function, swap_function):
+def local_search_steepest(
+    distance_matrix, diff_function, swap_function, *args, **kwargs
+):
     _, matrix_width = distance_matrix.shape
     number_of_vertices_required = math.ceil(0.5 * matrix_width)
 
@@ -164,7 +166,7 @@ def local_search_steepest(distance_matrix, diff_function, swap_function):
     return solution, calculate_cycle_length(solution, distance_matrix)
 
 
-def local_search_greedy(distance_matrix, diff_function, swap_function):
+def local_search_greedy(distance_matrix, diff_function, swap_function, *args, **kwargs):
     _, matrix_width = distance_matrix.shape
     number_of_vertices_required = math.ceil(0.5 * matrix_width)
 

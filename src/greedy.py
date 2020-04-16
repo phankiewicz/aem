@@ -10,7 +10,7 @@ def get_regret(insertion_costs):
     return insertion_costs[0][0] * -1
 
 
-def nn_greedy_tsp(distance_matrix, starting_vertex):
+def nn_greedy_tsp(distance_matrix, starting_vertex, *args, **kwargs):
     _, matrix_width = distance_matrix.shape
     number_of_vertices_required = math.ceil(0.5 * matrix_width)
     vertices_visited = np.zeros(matrix_width)
@@ -38,7 +38,7 @@ def nn_greedy_tsp(distance_matrix, starting_vertex):
     return cycle_vertices, cycle_length
 
 
-def regret_1_greedy_cycle_tsp(distance_matrix, starting_vertex):
+def regret_1_greedy_cycle_tsp(distance_matrix, starting_vertex, *args, **kwargs):
     _, matrix_width = distance_matrix.shape
     number_of_vertices_required = math.ceil(0.5 * matrix_width)
     vertices_visited = np.zeros(matrix_width)
@@ -92,7 +92,7 @@ def regret_1_greedy_cycle_tsp(distance_matrix, starting_vertex):
     return cycle_vertices, cycle_length
 
 
-def greedy_cycle_tsp(distance_matrix, starting_vertex):
+def greedy_cycle_tsp(distance_matrix, starting_vertex, *args, **kwargs):
     _, matrix_width = distance_matrix.shape
     number_of_vertices_required = math.ceil(0.5 * matrix_width)
     vertices_visited = np.zeros(matrix_width)

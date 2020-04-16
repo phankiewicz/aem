@@ -45,7 +45,7 @@ def get_argument_parser():
     return parser
 
 
-def run_nn_gready_tsp(distance_matrix, vertices_coordinates):
+def run_nn_gready_tsp(distance_matrix, vertices_coordinates, *args, **kwargs):
     results = []
     for index, _ in enumerate(tqdm(vertices_coordinates)):
         start_time = time.time()
@@ -55,7 +55,7 @@ def run_nn_gready_tsp(distance_matrix, vertices_coordinates):
     return results
 
 
-def run_greedy_cycle_tsp(distance_matrix, vertices_coordinates):
+def run_greedy_cycle_tsp(distance_matrix, vertices_coordinates, *args, **kwargs):
     results = []
     for index, _ in enumerate(tqdm(vertices_coordinates)):
         start_time = time.time()
@@ -65,7 +65,9 @@ def run_greedy_cycle_tsp(distance_matrix, vertices_coordinates):
     return results
 
 
-def run_regret_1_greedy_cycle_tsp(distance_matrix, vertices_coordinates):
+def run_regret_1_greedy_cycle_tsp(
+    distance_matrix, vertices_coordinates, *args, **kwargs
+):
     results = []
     for index, _ in enumerate(tqdm(vertices_coordinates)):
         start_time = time.time()
@@ -75,7 +77,7 @@ def run_regret_1_greedy_cycle_tsp(distance_matrix, vertices_coordinates):
     return results
 
 
-def run_local_search_greedy(distance_matrix, vertices_coordinates):
+def run_local_search_greedy(distance_matrix, vertices_coordinates, *args, **kwargs):
     results = []
     diff_function = swap_vertices_diff
     swap_function = swap_vertices
@@ -89,7 +91,7 @@ def run_local_search_greedy(distance_matrix, vertices_coordinates):
     return results
 
 
-def run_local_search_steepest(distance_matrix, vertices_coordinates):
+def run_local_search_steepest(distance_matrix, vertices_coordinates, *args, **kwargs):
     results = []
     diff_function = swap_vertices_diff
     swap_function = swap_vertices
