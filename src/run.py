@@ -104,10 +104,7 @@ def run_local_search_steepest(distance_matrix, vertices_coordinates):
 
 
 def get_local_search_algorithms_dict():
-    return {
-        'local_search_greedy': run_local_search_greedy,
-        'local_search_steepest': run_local_search_steepest,
-    }
+    return {'greedy': run_local_search_greedy, 'steepest': run_local_search_steepest}
 
 
 def get_constructive_algorithms_dict():
