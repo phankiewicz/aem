@@ -92,7 +92,7 @@ def run_local_search_greedy(
     for _ in tqdm(vertices_coordinates):
         start_time = time.time()
         cycle_vertices, cycle_length = local_search_greedy(
-            distance_matrix, diff_function, swap_function
+            distance_matrix, swap_function, diff_function
         )
         check_solution_correctness(cycle_vertices, distance_matrix)
         results.append((cycle_vertices, cycle_length, time.time() - start_time))
@@ -106,7 +106,7 @@ def run_local_search_steepest(
     for _ in tqdm(vertices_coordinates):
         start_time = time.time()
         cycle_vertices, cycle_length = local_search_steepest(
-            distance_matrix, diff_function, swap_function
+            distance_matrix, swap_function, diff_function
         )
         check_solution_correctness(cycle_vertices, distance_matrix)
         results.append((cycle_vertices, cycle_length, time.time() - start_time))
