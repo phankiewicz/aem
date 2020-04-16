@@ -1,5 +1,4 @@
 import argparse
-import math
 import os
 import time
 
@@ -13,6 +12,7 @@ from local_search import (
 )
 from texttable import Texttable
 from tqdm import tqdm
+from utils import check_solution_correctness
 from visualization import visualize_cycle_and_vertices
 
 
@@ -38,10 +38,7 @@ def run_nn_gready_tsp(distance_matrix, vertices_coordinates):
     results = []
     for index, _ in enumerate(tqdm(vertices_coordinates)):
         cycle_vertices, cycle_length = nn_greedy_tsp(distance_matrix, index)
-        assert cycle_vertices[0] == cycle_vertices[-1]
-        assert len(cycle_vertices) - 1 == len(set(cycle_vertices))
-        _, distance_matrix_width = distance_matrix.shape
-        assert len(cycle_vertices) - 1 == math.ceil(0.5 * distance_matrix_width)
+        check_solution_correctness(cycle_vertices, distance_matrix)
         results.append((cycle_vertices, cycle_length))
     return results
 
@@ -50,10 +47,7 @@ def run_greedy_cycle_tsp(distance_matrix, vertices_coordinates):
     results = []
     for index, _ in enumerate(tqdm(vertices_coordinates)):
         cycle_vertices, cycle_length = greedy_cycle_tsp(distance_matrix, index)
-        assert cycle_vertices[0] == cycle_vertices[-1]
-        assert len(cycle_vertices) - 1 == len(set(cycle_vertices))
-        _, distance_matrix_width = distance_matrix.shape
-        assert len(cycle_vertices) - 1 == math.ceil(0.5 * distance_matrix_width)
+        check_solution_correctness(cycle_vertices, distance_matrix)
         results.append((cycle_vertices, cycle_length))
     return results
 
@@ -62,10 +56,7 @@ def run_regret_1_greedy_cycle_tsp(distance_matrix, vertices_coordinates):
     results = []
     for index, _ in enumerate(tqdm(vertices_coordinates)):
         cycle_vertices, cycle_length = regret_1_greedy_cycle_tsp(distance_matrix, index)
-        assert cycle_vertices[0] == cycle_vertices[-1]
-        assert len(cycle_vertices) - 1 == len(set(cycle_vertices))
-        _, distance_matrix_width = distance_matrix.shape
-        assert len(cycle_vertices) - 1 == math.ceil(0.5 * distance_matrix_width)
+        check_solution_correctness(cycle_vertices, distance_matrix)
         results.append((cycle_vertices, cycle_length))
     return results
 
@@ -79,10 +70,7 @@ def run_local_search_greedy(distance_matrix, vertices_coordinates):
         cycle_vertices, cycle_length = local_search_greedy(
             distance_matrix, diff_function, swap_function
         )
-        assert cycle_vertices[0] == cycle_vertices[-1]
-        assert len(cycle_vertices) - 1 == len(set(cycle_vertices))
-        _, distance_matrix_width = distance_matrix.shape
-        assert len(cycle_vertices) - 1 == math.ceil(0.5 * distance_matrix_width)
+        check_solution_correctness(cycle_vertices, distance_matrix)
         results.append((cycle_vertices, cycle_length, time.time() - start_time))
     return results
 
@@ -96,10 +84,7 @@ def run_local_search_steepest(distance_matrix, vertices_coordinates):
         cycle_vertices, cycle_length = local_search_steepest(
             distance_matrix, diff_function, swap_function
         )
-        assert cycle_vertices[0] == cycle_vertices[-1]
-        assert len(cycle_vertices) - 1 == len(set(cycle_vertices))
-        _, distance_matrix_width = distance_matrix.shape
-        assert len(cycle_vertices) - 1 == math.ceil(0.5 * distance_matrix_width)
+        check_solution_correctness(cycle_vertices, distance_matrix)
         results.append((cycle_vertices, cycle_length, time.time() - start_time))
     return results
 
