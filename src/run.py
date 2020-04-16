@@ -18,19 +18,30 @@ from visualization import visualize_cycle_and_vertices
 
 def get_argument_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument(
+    subparsers = parser.add_subparsers(help='Heuristics types', dest='type')
+    constructive_parser = subparsers.add_parser('constructive')
+    constructive_parser.add_argument(
         '--algorithm',
-        choices=get_algorithms_dict().keys(),
+        choices=get_constructive_algorithms_dict().keys(),
         required=True,
         help='Specify algorithm to be used',
     )
-    parser.add_argument(
-        '--input_files',
-        nargs='+',
-        type=open,
-        help='Specify list of input files\' paths',
+    local_search_parser = subparsers.add_parser('local_search')
+    local_search_parser.add_argument(
+        '--algorithm',
+        choices=get_local_search_algorithms_dict().keys(),
+        required=True,
+        help='Specify algorithm to be used',
     )
-    parser.add_argument('--visualize', action='store_true')
+
+    for subparser in [constructive_parser, local_search_parser]:
+        subparser.add_argument(
+            '--input_files',
+            nargs='+',
+            type=open,
+            help='Specify list of input files\' paths',
+        )
+        subparser.add_argument('--visualize', action='store_true')
     return parser
 
 
@@ -92,13 +103,25 @@ def run_local_search_steepest(distance_matrix, vertices_coordinates):
     return results
 
 
-def get_algorithms_dict():
+def get_local_search_algorithms_dict():
+    return {
+        'local_search_greedy': run_local_search_greedy,
+        'local_search_steepest': run_local_search_steepest,
+    }
+
+
+def get_constructive_algorithms_dict():
     return {
         'nn_greedy': run_nn_gready_tsp,
         'greedy_cycle': run_greedy_cycle_tsp,
         'regret_1_greedy_cycle': run_regret_1_greedy_cycle_tsp,
-        'local_search_greedy': run_local_search_greedy,
-        'local_search_steepest': run_local_search_steepest,
+    }
+
+
+def get_algorithms_dict():
+    return {
+        'constructive': get_constructive_algorithms_dict(),
+        'local_search': get_local_search_algorithms_dict(),
     }
 
 
@@ -123,7 +146,8 @@ def run():
         print(instance_name)
         vertices_coordinates = import_vertices_coordinates(input_file)
         distance_matrix = create_distance_matrix(vertices_coordinates)
-        run_function = get_algorithms_dict()[args.algorithm]
+        algorithms_dict = get_algorithms_dict()[args.type]
+        run_function = algorithms_dict[args.algorithm]
         results = run_function(distance_matrix, vertices_coordinates)
 
         best_cycle, min_length, _ = min(results, key=lambda x: x[1])
