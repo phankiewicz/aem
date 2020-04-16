@@ -37,27 +37,30 @@ def get_argument_parser():
 def run_nn_gready_tsp(distance_matrix, vertices_coordinates):
     results = []
     for index, _ in enumerate(tqdm(vertices_coordinates)):
+        start_time = time.time()
         cycle_vertices, cycle_length = nn_greedy_tsp(distance_matrix, index)
         check_solution_correctness(cycle_vertices, distance_matrix)
-        results.append((cycle_vertices, cycle_length))
+        results.append((cycle_vertices, cycle_length, time.time() - start_time))
     return results
 
 
 def run_greedy_cycle_tsp(distance_matrix, vertices_coordinates):
     results = []
     for index, _ in enumerate(tqdm(vertices_coordinates)):
+        start_time = time.time()
         cycle_vertices, cycle_length = greedy_cycle_tsp(distance_matrix, index)
         check_solution_correctness(cycle_vertices, distance_matrix)
-        results.append((cycle_vertices, cycle_length))
+        results.append((cycle_vertices, cycle_length, time.time() - start_time))
     return results
 
 
 def run_regret_1_greedy_cycle_tsp(distance_matrix, vertices_coordinates):
     results = []
     for index, _ in enumerate(tqdm(vertices_coordinates)):
+        start_time = time.time()
         cycle_vertices, cycle_length = regret_1_greedy_cycle_tsp(distance_matrix, index)
         check_solution_correctness(cycle_vertices, distance_matrix)
-        results.append((cycle_vertices, cycle_length))
+        results.append((cycle_vertices, cycle_length, time.time() - start_time))
     return results
 
 
