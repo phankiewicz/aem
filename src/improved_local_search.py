@@ -141,9 +141,13 @@ def moves_list_local_search_steepest(
                 )
                 solution = swap_function(solution, swap_index1, swap_index2)
 
-    add_inner_moves(
-        distance_matrix, solution, improving_moves_list, diff_function, vertices_to_add
-    )
+                add_inner_moves(
+                    distance_matrix,
+                    solution,
+                    improving_moves_list,
+                    diff_function,
+                    vertices_to_add,
+                )
 
     solution.append(solution[0])
     final_solution_length = calculate_cycle_length(solution, distance_matrix)
