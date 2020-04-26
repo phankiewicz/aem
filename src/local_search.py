@@ -45,6 +45,7 @@ def swap_edges_diff(distance_matrix, solution, index1, index2):
 
 
 def swap_edges(solution, swap_index1, swap_index2):
+    assert swap_index1 < swap_index2
     return (
         solution[: swap_index1 + 1]
         + list(reversed(solution[swap_index1 + 1 : swap_index2 + 1]))

@@ -4,6 +4,7 @@ import time
 
 from greedy import greedy_cycle_tsp, nn_greedy_tsp, regret_1_greedy_cycle_tsp
 from importer import create_distance_matrix, import_vertices_coordinates
+from improved_local_search import moves_list_local_search_steepest
 from local_search import (
     local_search_greedy,
     local_search_steepest,
@@ -113,6 +114,20 @@ def run_local_search_steepest(
     return results
 
 
+def run_moves_list_local_search_steepest(
+    distance_matrix, vertices_coordinates, swap_function, diff_function, *args, **kwargs
+):
+    results = []
+    for _ in tqdm(vertices_coordinates):
+        start_time = time.time()
+        cycle_vertices, cycle_length = moves_list_local_search_steepest(
+            distance_matrix, swap_function, diff_function
+        )
+        check_solution_correctness(cycle_vertices, distance_matrix)
+        results.append((cycle_vertices, cycle_length, time.time() - start_time))
+    return results
+
+
 def get_local_search_neighbourhood_dict():
     return {
         'vertices': [swap_vertices, swap_vertices_diff],
@@ -121,7 +136,11 @@ def get_local_search_neighbourhood_dict():
 
 
 def get_local_search_algorithms_dict():
-    return {'greedy': run_local_search_greedy, 'steepest': run_local_search_steepest}
+    return {
+        'greedy': run_local_search_greedy,
+        'steepest': run_local_search_steepest,
+        'moves_list_steepest': run_moves_list_local_search_steepest,
+    }
 
 
 def get_constructive_algorithms_dict():
