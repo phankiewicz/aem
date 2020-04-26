@@ -12,6 +12,7 @@ from local_search import (
     swap_edges_diff,
     swap_vertices,
     swap_vertices_diff,
+    local_search_steepest_candidate,
 )
 from texttable import Texttable
 from tqdm import tqdm
@@ -117,7 +118,7 @@ def run_local_search_steepest(
     results = []
     for _ in tqdm(vertices_coordinates):
         start_time = time.time()
-        cycle_vertices, cycle_length = local_search_steepest(
+        cycle_vertices, cycle_length = local_search_steepest_candidate(
             distance_matrix, swap_function, diff_function
         )
         check_solution_correctness(cycle_vertices, distance_matrix)
