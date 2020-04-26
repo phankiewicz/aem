@@ -124,7 +124,19 @@ def run_local_search_steepest(
         check_solution_correctness(cycle_vertices, distance_matrix)
         results.append((cycle_vertices, cycle_length, time.time() - start_time))
     return results
-
+    
+def run_local_search_steepest_candidate(
+    distance_matrix, vertices_coordinates, swap_function, diff_function, *args, **kwargs
+):
+    results = []
+    for _ in tqdm(vertices_coordinates):
+        start_time = time.time()
+        cycle_vertices, cycle_length = local_search_steepest_candidate(
+            distance_matrix, swap_function, diff_function
+        )
+        check_solution_correctness(cycle_vertices, distance_matrix)
+        results.append((cycle_vertices, cycle_length, time.time() - start_time))
+    return results
 
 def get_local_search_neighbourhood_dict():
     return {
@@ -134,7 +146,11 @@ def get_local_search_neighbourhood_dict():
 
 
 def get_local_search_algorithms_dict():
-    return {'greedy': run_local_search_greedy, 'steepest': run_local_search_steepest}
+    return {
+        'greedy': run_local_search_greedy, 
+        'steepest': run_local_search_steepest,
+        'candidates_steepest': run_local_search_steepest_candidate,
+        }
 
 
 def get_constructive_algorithms_dict():
