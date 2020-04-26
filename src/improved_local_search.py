@@ -49,6 +49,8 @@ def moves_list_local_search_steepest(
 
     solution = random.sample(vertices, number_of_vertices_required)
 
+    initial_solution = calculate_cycle_length(solution, distance_matrix)
+
     improvement = True
 
     add_inner_moves(
@@ -144,4 +146,6 @@ def moves_list_local_search_steepest(
     )
 
     solution.append(solution[0])
-    return solution, calculate_cycle_length(solution, distance_matrix)
+    final_solution_length = calculate_cycle_length(solution, distance_matrix)
+    assert initial_solution > final_solution_length
+    return solution, final_solution_length
