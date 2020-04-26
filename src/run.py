@@ -118,7 +118,7 @@ def run_local_search_steepest(
     results = []
     for _ in tqdm(vertices_coordinates):
         start_time = time.time()
-        cycle_vertices, cycle_length = local_search_steepest_candidate(
+        cycle_vertices, cycle_length = local_search_steepest(
             distance_matrix, swap_function, diff_function
         )
         check_solution_correctness(cycle_vertices, distance_matrix)
