@@ -2,7 +2,7 @@ import itertools
 import math
 import random
 
-from local_search import calculate_cycle_length
+from local_search import calculate_cycle_length, swap_outer_vertices_diff
 from sortedcontainers import SortedList
 
 
@@ -36,6 +36,23 @@ def add_inner_moves(
             )
 
 
+def add_outer_moves(
+    distance_matrix, solution, improving_moves_list, diff_function, vertices
+):
+    _, matrix_width = distance_matrix.shape
+    other_vertices = [i for i in range(0, matrix_width) if i not in solution]
+    outer_combinations = list(itertools.product(vertices, other_vertices))
+
+    for old_vertex_index, new_vertex in random.sample(
+        outer_combinations, len(outer_combinations)
+    ):
+        diff = swap_outer_vertices_diff(
+            distance_matrix, solution, old_vertex_index, new_vertex
+        )
+        if diff < 0:
+            improving_moves_list.add(((solution[old_vertex_index], new_vertex), diff))
+
+
 def moves_list_local_search_steepest(
     distance_matrix, swap_function, diff_function, *args, **kwargs
 ):
@@ -60,6 +77,13 @@ def moves_list_local_search_steepest(
         diff_function,
         range(len(solution)),
     )
+    add_outer_moves(
+        distance_matrix,
+        solution,
+        improving_moves_list,
+        diff_function,
+        range(len(solution)),
+    )
 
     while improvement:
         improvement = False
@@ -67,36 +91,15 @@ def moves_list_local_search_steepest(
 
         solution_indexes = {item: index for index, item in enumerate(solution)}
 
-        # OUTER VERTICES
-
-        # other_vertices = [i for i in range(0, matrix_width) if i not in solution]
-        # outer_combinations = list(
-        #     itertools.product(range(len(solution)), other_vertices)
-        # )
-
-        # for old_vertex_index, new_vertex in random.sample(
-        #     outer_combinations, len(outer_combinations)
-        # ):
-
-        #     diff = swap_outer_vertices_diff(
-        #         distance_matrix, solution, old_vertex_index, new_vertex
-        #     )
-        #     if diff < 0:
-        #         improving_moves_list.add(
-        #             ((solution[old_vertex_index], new_vertex), diff)
-        #         )
-
-        # OUTER VERTICES
-
         to_be_removed = []
         for item in improving_moves_list:
             (vertex1, vertex2), diff = item
             assert diff < 0
-            assert vertex1 in solution and vertex2 in solution
             if vertex1 in solution:
                 improvement = True
                 if vertex2 not in solution:
                     outer_improvement = True
+                    best_move = vertex1, vertex2
                     best_swap = [solution_indexes[vertex1], vertex2]
                 else:
                     outer_improvement = False
@@ -123,11 +126,17 @@ def moves_list_local_search_steepest(
         remove_vertex_from_moves_list(improving_moves_list, best_move)
 
         # print(len(improving_moves_list))
-        assert not outer_improvement
         if improvement:
             if outer_improvement:
                 old_vertex_index, new_vertex = best_swap
                 solution[old_vertex_index] = new_vertex
+                add_outer_moves(
+                    distance_matrix,
+                    solution,
+                    improving_moves_list,
+                    diff_function,
+                    [old_vertex_index, (old_vertex_index + 1) % len(solution)],
+                )
             else:
                 swap_index1, swap_index2 = best_swap
                 if swap_index1 > swap_index2:
