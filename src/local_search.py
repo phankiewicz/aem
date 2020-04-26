@@ -185,7 +185,29 @@ def local_search_steepest_candidate(
         best_diff = 0
         best_swap = []
 
-        combinations = list(itertools.combinations(range(len(solution)), 2))
+        new_vertices_dict = {}
+
+        for old_vertex in solution:
+            distances = []
+            for new_vertex_index, new_vertex in enumerate(solution):
+                if new_vertex == old_vertex:
+                    continue
+                
+                distances.append((get_distance(distance_matrix, old_vertex, new_vertex), new_vertex_index))
+
+            distances.sort(key=lambda tup: tup[0])
+            new_vertices_dict[old_vertex] = [new_vertex_index for _, new_vertex_index in distances[:5]]
+
+        combinations = []
+
+        for old_vertex_index, old_vertex in enumerate(solution):
+            combinations += list(itertools.product([old_vertex_index], new_vertices_dict[old_vertex]))
+
+        #Pierwszy index musi być mniejszy, inaczej swap się psuje. Nie wiem jak to ładniej zapisać
+        for index, tup in enumerate(combinations):
+            if(tup[1] < tup[0]):
+                combinations[index] = (tup[1], tup[0])
+
         filtered_combinations = list(
             filter(lambda x: abs(x[0] - x[1]) != 1, combinations)
         )
@@ -213,11 +235,20 @@ def local_search_steepest_candidate(
             other_vertices_dict[old_vertex] = [new_vertex for _, new_vertex in distances[:5]]
 
 
+        other_vertices_dict = {}
+
+        for old_vertex_tmp in solution:
+            distances = []
+            for new_vertex_tmp in other_vertices:
+                distances.append((get_distance(distance_matrix, old_vertex_tmp, new_vertex_tmp), new_vertex_tmp))
+            distances.sort(key=lambda tup: tup[0])
+            other_vertices_dict[old_vertex_tmp] = [new_vertex_tmp for _, new_vertex_tmp in distances[:5]]
+
+
         outer_combinations = []
 
-        for old_vertex_index, old_vertex in enumerate(solution):
-            outer_combinations += list(itertools.product([old_vertex_index], other_vertices_dict[old_vertex]))
-
+        for old_vertex_index, old_vertex_tmp in enumerate(solution):
+            outer_combinations += list(itertools.product([old_vertex_index], other_vertices_dict[old_vertex_tmp]))
 
         for old_vertex_index, new_vertex in random.sample(
             outer_combinations, len(outer_combinations)
