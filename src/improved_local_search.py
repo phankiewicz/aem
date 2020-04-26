@@ -16,6 +16,26 @@ def remove_vertex_from_moves_list(improving_moves_list, vertices):
         improving_moves_list.remove(item)
 
 
+def add_inner_moves(
+    distance_matrix, solution, improving_moves_list, diff_function, vertices
+):
+    combinations = list(itertools.product(vertices, range(len(solution))))
+    filtered_combinations = [
+        (swap_index1, swap_index2)
+        for swap_index1, swap_index2 in combinations
+        if swap_index1 < swap_index2
+    ]
+    for swap_index1, swap_index2 in random.sample(
+        filtered_combinations, len(filtered_combinations)
+    ):
+        diff = diff_function(distance_matrix, solution, swap_index1, swap_index2)
+
+        if diff < 0:
+            improving_moves_list.add(
+                ((solution[swap_index1], solution[swap_index2]), diff)
+            )
+
+
 def moves_list_local_search_steepest(
     distance_matrix, swap_function, diff_function, *args, **kwargs
 ):
@@ -31,22 +51,13 @@ def moves_list_local_search_steepest(
 
     improvement = True
 
-    # INITIALIZE MOVES LIST
-
-    combinations = list(itertools.combinations(range(len(solution)), 2))
-    filtered_combinations = list(filter(lambda x: abs(x[0] - x[1]) != 1, combinations))
-
-    for swap_index1, swap_index2 in random.sample(
-        filtered_combinations, len(filtered_combinations)
-    ):
-        diff = diff_function(distance_matrix, solution, swap_index1, swap_index2)
-
-        if diff < 0:
-            improving_moves_list.add(
-                ((solution[swap_index1], solution[swap_index2]), diff)
-            )
-
-    # INITIALIZE MOVES LIST
+    add_inner_moves(
+        distance_matrix,
+        solution,
+        improving_moves_list,
+        diff_function,
+        range(len(solution)),
+    )
 
     while improvement:
         improvement = False
@@ -119,25 +130,18 @@ def moves_list_local_search_steepest(
                 swap_index1, swap_index2 = best_swap
                 if swap_index1 > swap_index2:
                     swap_index1, swap_index2 = swap_index2, swap_index1
+
+                vertices_to_add = (
+                    swap_index1,
+                    (swap_index1 + 1) % len(solution),
+                    swap_index2,
+                    (swap_index2 + 1) % len(solution),
+                )
                 solution = swap_function(solution, swap_index1, swap_index2)
 
-    # ADD NEW INNER MOVES
-    combinations = list(itertools.product(best_swap, range(len(solution))))
-    filtered_combinations = [
-        (swap_index1, swap_index2)
-        for swap_index1, swap_index2 in combinations
-        if swap_index1 < swap_index2
-    ]
-    for swap_index1, swap_index2 in random.sample(
-        filtered_combinations, len(filtered_combinations)
-    ):
-        diff = diff_function(distance_matrix, solution, swap_index1, swap_index2)
-
-        if diff < 0:
-            improving_moves_list.add(
-                ((solution[swap_index1], solution[swap_index2]), diff)
-            )
-    # ADD NEW INNER MOVES
+    add_inner_moves(
+        distance_matrix, solution, improving_moves_list, diff_function, vertices_to_add
+    )
 
     solution.append(solution[0])
     return solution, calculate_cycle_length(solution, distance_matrix)
