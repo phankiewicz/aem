@@ -93,19 +93,24 @@ def moves_list_local_search_steepest(
         for item in improving_moves_list:
             (vertex1, vertex2), diff = item
             assert diff < 0
-            if vertex1 in solution:
+            if vertex1 in solution and vertex2 not in solution:
                 improvement = True
-                if vertex2 not in solution:
-                    outer_improvement = True
-                    vertices_to_remove = [vertex1]
-                    best_swap = [solution_indexes[vertex1], vertex2]
-                else:
-                    outer_improvement = False
-                    vertices_to_remove = vertex1, vertex2
-                    best_swap = vertex1, vertex2
+                outer_improvement = True
+                vertices_to_remove = [vertex1]
+                best_swap = [solution_indexes[vertex1], vertex2]
                 break
-
-            to_be_removed.append(item)
+            elif (
+                vertex1 in solution
+                and vertex2 in solution
+                and solution_indexes[vertex1] < solution_indexes[vertex2]
+            ):
+                improvement = True
+                outer_improvement = False
+                vertices_to_remove = vertex1, vertex2
+                best_swap = vertex1, vertex2
+                break
+            elif vertex1 not in solution and vertex2 not in solution:
+                to_be_removed.append(item)
 
         checked_moves.update({indexes: diff for indexes, diff in improving_moves_list})
 
@@ -123,7 +128,7 @@ def moves_list_local_search_steepest(
 
         remove_vertex_from_moves_list(improving_moves_list, vertices_to_remove)
 
-        # print(len(improving_moves_list))
+        # print(improving_moves_list[:10])
         if improvement:
             if outer_improvement:
                 old_vertex_index, new_vertex = best_swap
@@ -141,8 +146,6 @@ def moves_list_local_search_steepest(
                     solution_indexes[vertex1],
                     solution_indexes[vertex2],
                 )
-                if swap_index1 > swap_index2:
-                    swap_index1, swap_index2 = swap_index2, swap_index1
 
                 vertices_to_add = (
                     solution[swap_index1],
