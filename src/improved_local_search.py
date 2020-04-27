@@ -19,7 +19,9 @@ def remove_vertex_from_moves_list(improving_moves_list, vertices):
 def add_inner_moves(
     distance_matrix, solution, improving_moves_list, diff_function, vertices
 ):
-    combinations = list(itertools.product(vertices, range(len(solution))))
+    solution_indexes = {item: index for index, item in enumerate(solution)}
+    vertices_indexes = [solution_indexes[vertex] for vertex in vertices]
+    combinations = list(itertools.product(vertices_indexes, range(len(solution))))
     filtered_combinations = [
         (swap_index1, swap_index2)
         for swap_index1, swap_index2 in combinations
@@ -71,11 +73,7 @@ def moves_list_local_search_steepest(
     improvement = True
 
     add_inner_moves(
-        distance_matrix,
-        solution,
-        improving_moves_list,
-        diff_function,
-        range(len(solution)),
+        distance_matrix, solution, improving_moves_list, diff_function, solution
     )
     add_outer_moves(
         distance_matrix,
@@ -104,7 +102,7 @@ def moves_list_local_search_steepest(
                 else:
                     outer_improvement = False
                     vertices_to_remove = vertex1, vertex2
-                    best_swap = [solution_indexes[vertex1], solution_indexes[vertex2]]
+                    best_swap = vertex1, vertex2
                 break
 
             to_be_removed.append(item)
@@ -138,18 +136,21 @@ def moves_list_local_search_steepest(
                     [old_vertex_index, (old_vertex_index + 1) % len(solution)],
                 )
             else:
-                swap_index1, swap_index2 = best_swap
+                vertex1, vertex2 = best_swap
+                swap_index1, swap_index2 = (
+                    solution_indexes[vertex1],
+                    solution_indexes[vertex2],
+                )
                 if swap_index1 > swap_index2:
                     swap_index1, swap_index2 = swap_index2, swap_index1
 
                 vertices_to_add = (
-                    swap_index1,
-                    (swap_index1 + 1) % len(solution),
-                    swap_index2,
-                    (swap_index2 + 1) % len(solution),
+                    solution[swap_index1],
+                    solution[(swap_index1 + 1) % len(solution)],
+                    solution[swap_index2],
+                    solution[(swap_index2 + 1) % len(solution)],
                 )
                 solution = swap_function(solution, swap_index1, swap_index2)
-
                 add_inner_moves(
                     distance_matrix,
                     solution,
