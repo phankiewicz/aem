@@ -99,11 +99,11 @@ def moves_list_local_search_steepest(
                 improvement = True
                 if vertex2 not in solution:
                     outer_improvement = True
-                    best_move = vertex1, vertex2
+                    vertices_to_remove = [vertex1]
                     best_swap = [solution_indexes[vertex1], vertex2]
                 else:
                     outer_improvement = False
-                    best_move = vertex1, vertex2
+                    vertices_to_remove = vertex1, vertex2
                     best_swap = [solution_indexes[vertex1], solution_indexes[vertex2]]
                 break
 
@@ -123,7 +123,7 @@ def moves_list_local_search_steepest(
         for item in to_be_removed:
             improving_moves_list.remove(item)
 
-        remove_vertex_from_moves_list(improving_moves_list, best_move)
+        remove_vertex_from_moves_list(improving_moves_list, vertices_to_remove)
 
         # print(len(improving_moves_list))
         if improvement:
