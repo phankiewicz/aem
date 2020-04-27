@@ -64,7 +64,6 @@ def moves_list_local_search_steepest(
     vertices = list(range(matrix_width))
 
     improving_moves_list = SortedList(key=lambda x: x[1])
-    checked_moves = {}
 
     solution = random.sample(vertices, number_of_vertices_required)
 
@@ -111,10 +110,6 @@ def moves_list_local_search_steepest(
                 break
             elif vertex1 not in solution and vertex2 not in solution:
                 to_be_removed.append(item)
-
-        checked_moves.update({indexes: diff for indexes, diff in improving_moves_list})
-
-        # print(len(checked_moves))
 
         # print(len(to_be_removed))
         # print(to_be_removed)
