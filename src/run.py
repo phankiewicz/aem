@@ -41,6 +41,12 @@ def get_argument_parser():
         required=True,
         help='Specify neighbourhood to be used',
     )
+    local_search_parser.add_argument(
+        '--multiple_start_number',
+        default=1,
+        type=int,
+        help='Specify number of iterations in multiple start',
+    )
 
     for subparser in [constructive_parser, local_search_parser]:
         subparser.add_argument(
@@ -85,26 +91,38 @@ def run_regret_1_greedy_cycle_tsp(
     return results
 
 
-def run_local_search_greedy(distance_matrix, vertices_coordinates, *args, **kwargs):
+def run_local_search_greedy(
+    distance_matrix, vertices_coordinates, *, multiple_start_number, **kwargs
+):
     results = []
     for _ in tqdm(vertices_coordinates):
+        inner_results = []
         start_time = time.time()
-        cycle_vertices, cycle_length = local_search_greedy(
-            distance_matrix, *args, **kwargs
-        )
-        check_solution_correctness(cycle_vertices, distance_matrix)
-        results.append((cycle_vertices, cycle_length, time.time() - start_time))
+        for _ in range(multiple_start_number):
+            cycle_vertices, cycle_length = local_search_greedy(
+                distance_matrix, **kwargs
+            )
+            check_solution_correctness(cycle_vertices, distance_matrix)
+            inner_results.append((cycle_vertices, cycle_length))
+        min_cycle_vertices, min_cycle_length, = min(inner_results, key=lambda x: x[1])
+        results.append((min_cycle_vertices, min_cycle_length, time.time() - start_time))
     return results
 
 
-def run_local_search_steepest(distance_matrix, vertices_coordinates, *args, **kwargs):
+def run_local_search_steepest(
+    distance_matrix, vertices_coordinates, *, multiple_start_number, **kwargs
+):
     results = []
     for _ in tqdm(vertices_coordinates):
+        inner_results = []
         start_time = time.time()
-        cycle_vertices, cycle_length = local_search_steepest(
-            distance_matrix, *args, **kwargs
-        )
-        check_solution_correctness(cycle_vertices, distance_matrix)
+        for _ in range(multiple_start_number):
+            cycle_vertices, cycle_length = local_search_steepest(
+                distance_matrix, **kwargs
+            )
+            check_solution_correctness(cycle_vertices, distance_matrix)
+            inner_results.append((cycle_vertices, cycle_length))
+        min_cycle_vertices, min_cycle_length, = min(inner_results, key=lambda x: x[1])
         results.append((cycle_vertices, cycle_length, time.time() - start_time))
     return results
 
@@ -120,7 +138,10 @@ def get_local_search_neighbourhood_dict():
 
 
 def get_local_search_extra_kwargs(run_args):
-    return get_local_search_neighbourhood_dict()[run_args.neighbourhood]
+    extra_kwargs = {'multiple_start_number': run_args.multiple_start_number}
+    neighbourhood_kwargs = get_local_search_neighbourhood_dict()[run_args.neighbourhood]
+    extra_kwargs.update(neighbourhood_kwargs)
+    return extra_kwargs
 
 
 def get_local_search_algorithms_dict():
