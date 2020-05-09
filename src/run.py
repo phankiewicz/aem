@@ -85,28 +85,24 @@ def run_regret_1_greedy_cycle_tsp(
     return results
 
 
-def run_local_search_greedy(
-    distance_matrix, vertices_coordinates, swap_function, diff_function, *args, **kwargs
-):
+def run_local_search_greedy(distance_matrix, vertices_coordinates, *args, **kwargs):
     results = []
     for _ in tqdm(vertices_coordinates):
         start_time = time.time()
         cycle_vertices, cycle_length = local_search_greedy(
-            distance_matrix, swap_function, diff_function
+            distance_matrix, *args, **kwargs
         )
         check_solution_correctness(cycle_vertices, distance_matrix)
         results.append((cycle_vertices, cycle_length, time.time() - start_time))
     return results
 
 
-def run_local_search_steepest(
-    distance_matrix, vertices_coordinates, swap_function, diff_function, *args, **kwargs
-):
+def run_local_search_steepest(distance_matrix, vertices_coordinates, *args, **kwargs):
     results = []
     for _ in tqdm(vertices_coordinates):
         start_time = time.time()
         cycle_vertices, cycle_length = local_search_steepest(
-            distance_matrix, swap_function, diff_function
+            distance_matrix, *args, **kwargs
         )
         check_solution_correctness(cycle_vertices, distance_matrix)
         results.append((cycle_vertices, cycle_length, time.time() - start_time))
@@ -115,9 +111,16 @@ def run_local_search_steepest(
 
 def get_local_search_neighbourhood_dict():
     return {
-        'vertices': [swap_vertices, swap_vertices_diff],
-        'edges': [swap_edges, swap_edges_diff],
+        'vertices': {
+            'swap_function': swap_vertices,
+            'diff_function': swap_vertices_diff,
+        },
+        'edges': {'swap_function': swap_edges, 'diff_function': swap_edges_diff},
     }
+
+
+def get_local_search_extra_kwargs(run_args):
+    return get_local_search_neighbourhood_dict()[run_args.neighbourhood]
 
 
 def get_local_search_algorithms_dict():
@@ -163,12 +166,10 @@ def run():
         algorithms_dict = get_algorithms_dict()[args.type]
         run_function = algorithms_dict[args.algorithm]
 
-        extra_arguments = (
-            get_local_search_neighbourhood_dict()[args.neighbourhood]
-            if args.type == 'local_search'
-            else []
+        extra_kwargs = (
+            get_local_search_extra_kwargs(args) if args.type == 'local_search' else {}
         )
-        results = run_function(distance_matrix, vertices_coordinates, *extra_arguments)
+        results = run_function(distance_matrix, vertices_coordinates, **extra_kwargs)
 
         best_cycle, min_length, _ = min(results, key=lambda x: x[1])
         average = sum([length for _, length, _ in results]) / len(results)
