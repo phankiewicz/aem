@@ -101,13 +101,17 @@ def swap_vertices(solution, swap_index1, swap_index2):
     return solution
 
 
-def local_search_steepest(distance_matrix, *, swap_function, diff_function, **kwargs):
+def local_search_steepest(
+    distance_matrix, *, swap_function, diff_function, initial_solution=[], **kwargs
+):
     _, matrix_width = distance_matrix.shape
-    number_of_vertices_required = math.ceil(0.5 * matrix_width)
 
-    vertices = list(range(matrix_width))
-
-    solution = random.sample(vertices, number_of_vertices_required)
+    if initial_solution:
+        solution = initial_solution[:-1]
+    else:
+        vertices = list(range(matrix_width))
+        number_of_vertices_required = math.ceil(0.5 * matrix_width)
+        solution = random.sample(vertices, number_of_vertices_required)
 
     improvement = True
 

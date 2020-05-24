@@ -12,6 +12,7 @@ from local_search import (
     swap_vertices,
     swap_vertices_diff,
 )
+from simple_perturbation_local_search import simple_perturbation_local_search
 from texttable import Texttable
 from tqdm import tqdm
 from utils import check_solution_correctness
@@ -127,6 +128,24 @@ def run_local_search_steepest(
     return results
 
 
+def run_simple_perturbance_local_search(
+    distance_matrix, vertices_coordinates, *, multiple_start_number, **kwargs
+):
+    results = []
+    for _ in tqdm(range(10)):
+        inner_results = []
+        start_time = time.time()
+        for _ in range(multiple_start_number):
+            cycle_vertices, cycle_length = simple_perturbation_local_search(
+                distance_matrix, **kwargs
+            )
+            check_solution_correctness(cycle_vertices, distance_matrix)
+            inner_results.append((cycle_vertices, cycle_length))
+        min_cycle_vertices, min_cycle_length, = min(inner_results, key=lambda x: x[1])
+        results.append((cycle_vertices, cycle_length, time.time() - start_time))
+    return results
+
+
 def get_local_search_neighbourhood_dict():
     return {
         'vertices': {
@@ -145,7 +164,11 @@ def get_local_search_extra_kwargs(run_args):
 
 
 def get_local_search_algorithms_dict():
-    return {'greedy': run_local_search_greedy, 'steepest': run_local_search_steepest}
+    return {
+        'greedy': run_local_search_greedy,
+        'steepest': run_local_search_steepest,
+        'simple_perturbation': run_simple_perturbance_local_search,
+    }
 
 
 def get_constructive_algorithms_dict():
