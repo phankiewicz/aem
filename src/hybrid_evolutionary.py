@@ -3,6 +3,10 @@ import time
 from local_search import local_search_steepest, swap_edges, swap_edges_diff
 
 
+def recombination(parent1, parent2):
+    for vertex in parent1:
+
+
 def steady_state(distance_matrix, *, iteration_time, population_size, **kwargs):
     initialization_start_time = time.time()
     population = []
@@ -24,3 +28,7 @@ def steady_state(distance_matrix, *, iteration_time, population_size, **kwargs):
 
     min_solution, min_length = min(population, key=lambda item: item[1])
     return min_solution, min_length, counter
+
+
+if __name__ == "__main__":
+    recombination([1, 2, 3, 4, 5, 6, 7, 1], [2, 3, 4, 9, 11, 19, 5, 2])
