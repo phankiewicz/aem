@@ -6,11 +6,50 @@ from simple_perturbation_local_search import perturbate_solution
 
 
 def crossover(parent1, parent2):
-    return parent1
+    same_elements = []
 
+    solution1 = parent1[:-1]
+    solution2 = parent2[:-1]
 
-def recombination(parent1, parent2):
-    for vertex in parent1:
+    solution1_index = 0
+
+    while solution1_index < len(solution1):
+        begin_index = solution1_index
+        try:
+            solution2_index = solution2.index(solution1[solution1_index])
+            while solution1[solution1_index] == solution2[solution2_index]:
+                solution1_index += 1
+                if(solution1_index >= len(solution1)):
+                    break
+                solution2_index += 1
+                if(solution2_index >= len(solution2)):
+                    solution2_index = 0
+            end_index = solution1_index
+            same_elements.append(solution1[begin_index: end_index])
+        except ValueError:
+            solution1_index += 1
+
+    total_length = 0
+
+    random_solution = random.choice([solution1, solution2])
+
+    for elem in same_elements:
+        total_length += len(elem)
+        for vertex in elem:
+            random_solution.remove(vertex)
+
+    for vertex in random_solution:
+        same_elements.insert(random.randint(0, len(same_elements) - 1), [vertex])
+
+    child = []
+
+    for elem in same_elements:
+        for vertex in elem:
+            child.append(vertex)
+
+    child.append(child[0])
+
+    return child
 
 
 def steady_state(distance_matrix, *, iteration_time, population_size, **kwargs):
@@ -65,4 +104,8 @@ def steady_state(distance_matrix, *, iteration_time, population_size, **kwargs):
 
 
 if __name__ == "__main__":
-    recombination([1, 2, 3, 4, 5, 6, 7, 1], [2, 3, 4, 9, 11, 19, 5, 2])
+    crossover([1, 2, 3, 4, 5, 6, 7, 8, 1], [2, 3, 4, 9, 11, 19, 5, 1, 2])
+
+    crossover([1, 2, 3, 4], [1, 2, 3, 4])
+
+    A = [1, 2, 3, 4, 5]
