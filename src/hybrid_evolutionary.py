@@ -29,12 +29,9 @@ def crossover(parent1, parent2):
         except ValueError:
             solution1_index += 1
 
-    total_length = 0
-
     random_solution = random.choice([solution1, solution2])
 
     for elem in same_elements:
-        total_length += len(elem)
         for vertex in elem:
             random_solution.remove(vertex)
 
