@@ -1,5 +1,6 @@
 import itertools
 import random
+import time
 
 from local_search import local_search_steepest, swap_edges
 
@@ -27,7 +28,12 @@ def perturbate_solution(
 def simple_perturbation_local_search(distance_matrix, *args, **kwargs):
     min_solution, min_length = local_search_steepest(distance_matrix, *args, **kwargs)
 
-    for _ in range(100):
+    start_time = time.time()
+    counter = 0
+    while time.time() - start_time < 840:
+        counter += 1
+        if counter % 20 == 0:
+            print(time.time() - start_time)
         perturbated_solution = perturbate_solution(min_solution, distance_matrix)
         current_solution, current_length = local_search_steepest(
             distance_matrix, *args, initial_solution=perturbated_solution, **kwargs
@@ -35,5 +41,4 @@ def simple_perturbation_local_search(distance_matrix, *args, **kwargs):
 
         if current_length < min_length:
             min_solution, min_length = current_solution, current_length
-
-    return min_solution, min_length
+    return min_solution, min_length, counter

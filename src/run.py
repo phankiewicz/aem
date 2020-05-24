@@ -136,10 +136,10 @@ def run_local_search_steepest(
     distance_matrix, vertices_coordinates, *, multiple_start_number, **kwargs
 ):
     results = []
-    for _ in tqdm(vertices_coordinates):
+    for _ in tqdm(range(10)):
         inner_results = []
         start_time = time.time()
-        for _ in range(multiple_start_number):
+        for i in range(multiple_start_number):
             cycle_vertices, cycle_length = local_search_steepest(
                 distance_matrix, **kwargs
             )
@@ -158,13 +158,17 @@ def run_simple_perturbance_local_search(
         inner_results = []
         start_time = time.time()
         for _ in range(multiple_start_number):
-            cycle_vertices, cycle_length = simple_perturbation_local_search(
+            cycle_vertices, cycle_length, counter = simple_perturbation_local_search(
                 distance_matrix, **kwargs
             )
             check_solution_correctness(cycle_vertices, distance_matrix)
-            inner_results.append((cycle_vertices, cycle_length))
-        min_cycle_vertices, min_cycle_length, = min(inner_results, key=lambda x: x[1])
-        results.append((cycle_vertices, cycle_length, time.time() - start_time))
+            inner_results.append((cycle_vertices, cycle_length, counter))
+        min_cycle_vertices, min_cycle_length, counter = min(
+            inner_results, key=lambda x: x[1]
+        )
+        results.append(
+            (cycle_vertices, cycle_length, time.time() - start_time, counter)
+        )
     return results
 
 
@@ -243,6 +247,9 @@ def run():
             'Min time [s]',
             'Average time [s]',
             'Max time [s]',
+            'Min iterations',
+            'Average iterations',
+            'Max iterations',
         ]
     )
     solutions = []
@@ -262,13 +269,19 @@ def run():
 
         results = run_function(distance_matrix, vertices_coordinates, **extra_kwargs)
 
-        best_cycle, min_length, _ = min(results, key=lambda x: x[1])
-        average = sum([length for _, length, _ in results]) / len(results)
-        _, max_length, _ = max(results, key=lambda x: x[1])
+        best_cycle, min_length, _, _ = min(results, key=lambda x: x[1])
+        average = sum([length for _, length, _, _ in results]) / len(results)
+        _, max_length, _, _ = max(results, key=lambda x: x[1])
 
-        _, _, min_time = min(results, key=lambda x: x[2])
-        average_time = sum([time for _, _, time in results]) / len(results)
-        _, _, max_time = max(results, key=lambda x: x[2])
+        _, _, min_time, _ = min(results, key=lambda x: x[2])
+        average_time = sum([time for _, _, time, _ in results]) / len(results)
+        _, _, max_time, _ = max(results, key=lambda x: x[2])
+
+        _, _, _, min_iterations = min(results, key=lambda x: x[3])
+        average_iterations = sum([iterations for _, _, _, iterations in results]) / len(
+            results
+        )
+        _, _, _, max_iterations = max(results, key=lambda x: x[3])
 
         table.add_row(
             [
@@ -279,6 +292,9 @@ def run():
                 min_time,
                 average_time,
                 max_time,
+                min_iterations,
+                average_iterations,
+                max_iterations,
             ]
         )
         solutions.append((best_cycle, vertices_coordinates))
