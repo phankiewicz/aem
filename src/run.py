@@ -3,6 +3,7 @@ import os
 import time
 
 from greedy import greedy_cycle_tsp, nn_greedy_tsp, regret_1_greedy_cycle_tsp
+from hybrid_evolutionary import steady_state
 from importer import create_distance_matrix, import_vertices_coordinates
 from local_search import (
     local_search_greedy,
@@ -49,7 +50,28 @@ def get_argument_parser():
         help='Specify number of iterations in multiple start',
     )
 
-    for subparser in [constructive_parser, local_search_parser]:
+    hybrid_evolutionary_parser = subparsers.add_parser('hybrid_evolutionary')
+    hybrid_evolutionary_parser.add_argument(
+        '--algorithm',
+        choices=get_hybrid_evolutionary_algorithms_dict().keys(),
+        required=True,
+        help='Specify algorithm to be used',
+    )
+    hybrid_evolutionary_parser.add_argument(
+        '--iteration_time',
+        default=1,
+        type=int,
+        help='Specify time for running one iteration',
+    )
+    hybrid_evolutionary_parser.add_argument(
+        '--population_size', default=20, type=int, help='Specify population size'
+    )
+
+    for subparser in [
+        constructive_parser,
+        local_search_parser,
+        hybrid_evolutionary_parser,
+    ]:
         subparser.add_argument(
             '--input_files',
             nargs='+',
@@ -146,6 +168,27 @@ def run_simple_perturbance_local_search(
     return results
 
 
+def run_steady_state(distance_matrix, vertices_coordinates, **kwargs):
+    results = []
+    for _ in tqdm(range(10)):
+        start_time = time.time()
+        cycle_vertices, cycle_length = steady_state(distance_matrix, **kwargs)
+        check_solution_correctness(cycle_vertices, distance_matrix)
+        results.append((cycle_vertices, cycle_length, time.time() - start_time))
+    return results
+
+
+def get_hybrid_evolutionary_extra_kwargs(run_args):
+    return {
+        'iteration_time': run_args.iteration_time,
+        'population_size': run_args.population_size,
+    }
+
+
+def get_hybrid_evolutionary_algorithms_dict():
+    return {'steady_state': run_steady_state}
+
+
 def get_local_search_neighbourhood_dict():
     return {
         'vertices': {
@@ -183,6 +226,7 @@ def get_algorithms_dict():
     return {
         'constructive': get_constructive_algorithms_dict(),
         'local_search': get_local_search_algorithms_dict(),
+        'hybrid_evolutionary': get_hybrid_evolutionary_algorithms_dict(),
     }
 
 
@@ -210,9 +254,12 @@ def run():
         algorithms_dict = get_algorithms_dict()[args.type]
         run_function = algorithms_dict[args.algorithm]
 
-        extra_kwargs = (
-            get_local_search_extra_kwargs(args) if args.type == 'local_search' else {}
-        )
+        extra_kwargs = {}
+        if args.type == 'local_search':
+            extra_kwargs = get_local_search_extra_kwargs(args)
+        elif args.type == 'hybrid_evolutionary':
+            extra_kwargs = get_hybrid_evolutionary_extra_kwargs(args)
+
         results = run_function(distance_matrix, vertices_coordinates, **extra_kwargs)
 
         best_cycle, min_length, _ = min(results, key=lambda x: x[1])
