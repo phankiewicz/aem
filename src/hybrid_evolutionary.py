@@ -20,5 +20,7 @@ def steady_state(distance_matrix, *, iteration_time, population_size, **kwargs):
         counter += 1
         if counter % 20 == 0:
             print(time.time() - start_time)
+        # steady_state code here
 
-    return min(population, key=lambda item: item[1])
+    min_solution, min_length = min(population, key=lambda item: item[1])
+    return min_solution, min_length, counter

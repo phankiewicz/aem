@@ -176,9 +176,11 @@ def run_steady_state(distance_matrix, vertices_coordinates, **kwargs):
     results = []
     for _ in tqdm(range(10)):
         start_time = time.time()
-        cycle_vertices, cycle_length = steady_state(distance_matrix, **kwargs)
+        cycle_vertices, cycle_length, counter = steady_state(distance_matrix, **kwargs)
         check_solution_correctness(cycle_vertices, distance_matrix)
-        results.append((cycle_vertices, cycle_length, time.time() - start_time))
+        results.append(
+            (cycle_vertices, cycle_length, time.time() - start_time, counter)
+        )
     return results
 
 
