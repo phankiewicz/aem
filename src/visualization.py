@@ -1,6 +1,4 @@
 import matplotlib.pyplot as plt
-from scipy.stats import pearsonr
-import numpy as np
 
 
 def visualize_cycle_and_vertices(cycle, vertices_coordinates):
@@ -16,9 +14,6 @@ def visualize_cycle_and_vertices(cycle, vertices_coordinates):
 
 
 def visualize_similarity(chart_data):
-    X, Y = np.array(chart_data).T
-    correlation, _ = pearsonr(X, Y)
     for x, y in chart_data:
         plt.plot(x, y, 'ro')
-    plt.title("correlation:" + str(correlation))
     plt.show()

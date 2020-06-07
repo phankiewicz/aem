@@ -1,7 +1,11 @@
 import argparse
+import os
 
+import numpy as np
 from local_search import local_search_greedy, swap_edges, swap_edges_diff
 from run import create_distance_matrix, import_vertices_coordinates
+from scipy.stats import pearsonr
+from texttable import Texttable
 from tqdm import tqdm
 from visualization import visualize_similarity
 
@@ -60,7 +64,12 @@ def run():
 
     min_charts_data = []
     mean_charts_data = []
+
+    table = Texttable()
+    table.header(['Name', 'Type', 'Correlation'])
+
     for input_file in args.input_files:
+        instance_name = os.path.basename(input_file.name)
         vertices_coordinates = import_vertices_coordinates(input_file)
         distance_matrix = create_distance_matrix(vertices_coordinates)
 
@@ -92,8 +101,16 @@ def run():
             mean_similarities.append((cost, mean_similarity))
 
         min_charts_data.append(min_similarities)
-        mean_charts_data.append(mean_similarities)
+        X, Y = np.array(min_similarities).T
+        correlation, _ = pearsonr(X, Y)
+        table.add_row([instance_name, 'min', correlation])
 
+        mean_charts_data.append(mean_similarities)
+        X, Y = np.array(mean_similarities).T
+        correlation, _ = pearsonr(X, Y)
+        table.add_row([instance_name, 'mean', correlation])
+
+    print(table.draw())
     if args.visualize:
         for min_chart_data, mean_chart_data in zip(min_charts_data, mean_charts_data):
             visualize_similarity(min_chart_data)
