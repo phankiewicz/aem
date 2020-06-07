@@ -25,4 +25,4 @@ def common_edges(solution1, solution2):
 if __name__ == "__main__":
     print(common_vertices([1, 2, 3, 4, 5, 6, 22, 1], [6, 7, 8, 2, 3, 45, 22, 6]))
 
-    print(common_edges([1, 2, 3, 4, 5, 6, 22, 1], [6, 7, 8, 2, 3, 45, 22, 6]))
+    print(common_edges([1, 2, 3, 4, 5, 6, 22, 1], [1, 7, 8, 2, 3, 45, 22, 1]))
