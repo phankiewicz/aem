@@ -47,8 +47,8 @@ def swap_edges_diff(distance_matrix, solution, index1, index2):
 def swap_edges(solution, swap_index1, swap_index2):
     return (
         solution[: swap_index1 + 1]
-        + list(reversed(solution[swap_index1 + 1 : swap_index2 + 1]))
-        + solution[swap_index2 + 1 :]
+        + list(reversed(solution[swap_index1 + 1: swap_index2 + 1]))
+        + solution[swap_index2 + 1:]
     )
 
 
@@ -102,14 +102,16 @@ def swap_vertices(solution, swap_index1, swap_index2):
 
 
 def local_search_steepest(
-    distance_matrix, swap_function, diff_function, *args, **kwargs
+    distance_matrix, *, swap_function, diff_function, initial_solution=[], **kwargs
 ):
     _, matrix_width = distance_matrix.shape
-    number_of_vertices_required = math.ceil(0.5 * matrix_width)
 
-    vertices = list(range(matrix_width))
-
-    solution = random.sample(vertices, number_of_vertices_required)
+    if initial_solution:
+        solution = initial_solution[:-1]
+    else:
+        vertices = list(range(matrix_width))
+        number_of_vertices_required = math.ceil(0.5 * matrix_width)
+        solution = random.sample(vertices, number_of_vertices_required)
 
     improvement = True
 
@@ -166,116 +168,7 @@ def local_search_steepest(
     return solution, calculate_cycle_length(solution, distance_matrix)
 
 
-
-def local_search_steepest_candidate(
-    distance_matrix, swap_function, diff_function, *args, **kwargs
-):
-    _, matrix_width = distance_matrix.shape
-    number_of_vertices_required = math.ceil(0.5 * matrix_width)
-
-    vertices = list(range(matrix_width))
-
-    solution = random.sample(vertices, number_of_vertices_required)
-
-    improvement = True
-
-    while improvement:
-        improvement = False
-        outer_improvement = False
-        best_diff = 0
-        best_swap = []
-
-        new_vertices_dict = {}
-
-        for old_vertex in solution:
-            distances = []
-            for new_vertex_index, new_vertex in enumerate(solution):
-                if new_vertex == old_vertex:
-                    continue
-                
-                distances.append((get_distance(distance_matrix, old_vertex, new_vertex), new_vertex_index))
-
-            distances.sort(key=lambda tup: tup[0])
-            new_vertices_dict[old_vertex] = [new_vertex_index for _, new_vertex_index in distances[:5]]
-
-        combinations = []
-
-        for old_vertex_index, old_vertex in enumerate(solution):
-            combinations += list(itertools.product([old_vertex_index], new_vertices_dict[old_vertex]))
-
-        #Pierwszy index musi być mniejszy, inaczej swap się psuje. Nie wiem jak to ładniej zapisać
-        for index, tup in enumerate(combinations):
-            if(tup[1] < tup[0]):
-                combinations[index] = (tup[1], tup[0])
-
-        filtered_combinations = list(
-            filter(lambda x: abs(x[0] - x[1]) != 1, combinations)
-        )
-
-        for swap_index1, swap_index2 in random.sample(
-            filtered_combinations, len(filtered_combinations)
-        ):
-            diff = diff_function(distance_matrix, solution, swap_index1, swap_index2)
-
-            if diff < best_diff:
-                # print("prev: ", best_diff, "curr:", diff)
-                best_diff = diff
-                best_swap = [swap_index1, swap_index2]
-                improvement = True
-
-        other_vertices = [i for i in range(0, matrix_width) if i not in solution]
-
-        other_vertices_dict = {}
-
-        for old_vertex in solution:
-            distances = []
-            for new_vertex in other_vertices:
-                distances.append((get_distance(distance_matrix, old_vertex, new_vertex), new_vertex))
-            distances.sort(key=lambda tup: tup[0])
-            other_vertices_dict[old_vertex] = [new_vertex for _, new_vertex in distances[:5]]
-
-
-        other_vertices_dict = {}
-
-        for old_vertex_tmp in solution:
-            distances = []
-            for new_vertex_tmp in other_vertices:
-                distances.append((get_distance(distance_matrix, old_vertex_tmp, new_vertex_tmp), new_vertex_tmp))
-            distances.sort(key=lambda tup: tup[0])
-            other_vertices_dict[old_vertex_tmp] = [new_vertex_tmp for _, new_vertex_tmp in distances[:5]]
-
-
-        outer_combinations = []
-
-        for old_vertex_index, old_vertex_tmp in enumerate(solution):
-            outer_combinations += list(itertools.product([old_vertex_index], other_vertices_dict[old_vertex_tmp]))
-
-        for old_vertex_index, new_vertex in random.sample(
-            outer_combinations, len(outer_combinations)
-        ):
-
-            diff = swap_outer_vertices_diff(
-                distance_matrix, solution, old_vertex_index, new_vertex
-            )
-
-            if diff < best_diff:
-                best_diff = diff
-                best_swap = [old_vertex_index, new_vertex]
-                outer_improvement = True
-                improvement = True
-
-        if improvement:
-            if outer_improvement:
-                old_vertex_index, new_vertex = best_swap
-                solution[old_vertex_index] = new_vertex
-            else:
-                swap_index1, swap_index2 = best_swap
-                solution = swap_function(solution, swap_index1, swap_index2)
-
-    solution.append(solution[0])
-    return solution, calculate_cycle_length(solution, distance_matrix)
-
-def local_search_greedy(distance_matrix, swap_function, diff_function, *args, **kwargs):
+def local_search_greedy(distance_matrix, *, swap_function, diff_function, **kwargs):
     _, matrix_width = distance_matrix.shape
     number_of_vertices_required = math.ceil(0.5 * matrix_width)
 

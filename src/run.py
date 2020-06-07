@@ -13,6 +13,7 @@ from local_search import (
     swap_vertices,
     swap_vertices_diff,
 )
+from simple_perturbation_local_search import simple_perturbation_local_search
 from texttable import Texttable
 from tqdm import tqdm
 from utils import check_solution_correctness
@@ -41,6 +42,12 @@ def get_argument_parser():
         choices=get_local_search_neighbourhood_dict().keys(),
         required=True,
         help='Specify neighbourhood to be used',
+    )
+    local_search_parser.add_argument(
+        '--multiple_start_number',
+        default=1,
+        type=int,
+        help='Specify number of iterations in multiple start',
     )
 
     for subparser in [constructive_parser, local_search_parser]:
@@ -98,42 +105,82 @@ def run_regret_1_greedy_cycle_tsp(
 
 
 def run_local_search_greedy(
-    distance_matrix, vertices_coordinates, swap_function, diff_function, *args, **kwargs
+    distance_matrix, vertices_coordinates, *, multiple_start_number, **kwargs
 ):
     results = []
     for _ in tqdm(vertices_coordinates):
+        inner_results = []
         start_time = time.time()
-        cycle_vertices, cycle_length = local_search_greedy(
-            distance_matrix, swap_function, diff_function
-        )
-        check_solution_correctness(cycle_vertices, distance_matrix)
-        results.append((cycle_vertices, cycle_length, time.time() - start_time))
+        for _ in range(multiple_start_number):
+            cycle_vertices, cycle_length = local_search_greedy(
+                distance_matrix, **kwargs
+            )
+            check_solution_correctness(cycle_vertices, distance_matrix)
+            inner_results.append((cycle_vertices, cycle_length))
+        min_cycle_vertices, min_cycle_length, = min(inner_results, key=lambda x: x[1])
+        results.append((min_cycle_vertices, min_cycle_length, time.time() - start_time))
     return results
 
 
 def run_local_search_steepest(
-    distance_matrix, vertices_coordinates, swap_function, diff_function, *args, **kwargs
+    distance_matrix, vertices_coordinates, *, multiple_start_number, **kwargs
 ):
     results = []
     for _ in tqdm(vertices_coordinates):
+        inner_results = []
         start_time = time.time()
-        cycle_vertices, cycle_length = local_search_steepest(
-            distance_matrix, swap_function, diff_function
-        )
-        check_solution_correctness(cycle_vertices, distance_matrix)
+        for _ in range(multiple_start_number):
+            cycle_vertices, cycle_length = local_search_steepest(
+                distance_matrix, **kwargs
+            )
+            check_solution_correctness(cycle_vertices, distance_matrix)
+            inner_results.append((cycle_vertices, cycle_length))
+        min_cycle_vertices, min_cycle_length, = min(inner_results, key=lambda x: x[1])
+        results.append((cycle_vertices, cycle_length, time.time() - start_time))
+    return results
+
+
+def run_simple_perturbance_local_search(
+    distance_matrix, vertices_coordinates, *, multiple_start_number, **kwargs
+):
+    results = []
+    for _ in tqdm(range(10)):
+        inner_results = []
+        start_time = time.time()
+        for _ in range(multiple_start_number):
+            cycle_vertices, cycle_length = simple_perturbation_local_search(
+                distance_matrix, **kwargs
+            )
+            check_solution_correctness(cycle_vertices, distance_matrix)
+            inner_results.append((cycle_vertices, cycle_length))
+        min_cycle_vertices, min_cycle_length, = min(inner_results, key=lambda x: x[1])
         results.append((cycle_vertices, cycle_length, time.time() - start_time))
     return results
 
 
 def get_local_search_neighbourhood_dict():
     return {
-        'vertices': [swap_vertices, swap_vertices_diff],
-        'edges': [swap_edges, swap_edges_diff],
+        'vertices': {
+            'swap_function': swap_vertices,
+            'diff_function': swap_vertices_diff,
+        },
+        'edges': {'swap_function': swap_edges, 'diff_function': swap_edges_diff},
     }
 
 
+def get_local_search_extra_kwargs(run_args):
+    extra_kwargs = {'multiple_start_number': run_args.multiple_start_number}
+    neighbourhood_kwargs = get_local_search_neighbourhood_dict()[run_args.neighbourhood]
+    extra_kwargs.update(neighbourhood_kwargs)
+    return extra_kwargs
+
+
 def get_local_search_algorithms_dict():
-    return {'greedy': run_local_search_greedy, 'steepest': run_local_search_steepest}
+    return {
+        'greedy': run_local_search_greedy,
+        'steepest': run_local_search_steepest,
+        'simple_perturbation': run_simple_perturbance_local_search,
+    }
 
 
 def get_constructive_algorithms_dict():
@@ -176,12 +223,10 @@ def run():
         algorithms_dict = get_algorithms_dict()[args.type]
         run_function = algorithms_dict[args.algorithm]
 
-        extra_arguments = (
-            get_local_search_neighbourhood_dict()[args.neighbourhood]
-            if args.type == 'local_search'
-            else []
+        extra_kwargs = (
+            get_local_search_extra_kwargs(args) if args.type == 'local_search' else {}
         )
-        results = run_function(distance_matrix, vertices_coordinates, *extra_arguments)
+        results = run_function(distance_matrix, vertices_coordinates, **extra_kwargs)
 
         best_cycle, min_length, _ = min(results, key=lambda x: x[1])
         average = sum([length for _, length, _ in results]) / len(results)
