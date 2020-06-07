@@ -28,6 +28,10 @@ def common_edges(solution1, solution2):
     return edges_sum / (len(solution1) - 1)
 
 
+def get_similarity_functions_dict():
+    return {'edges': common_edges, 'vertices': common_vertices}
+
+
 def get_argument_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -40,13 +44,19 @@ def get_argument_parser():
         '--iterations_number', default=1, type=int, help='Specify number of iterations '
     )
     parser.add_argument('--visualize', action='store_true')
+    parser.add_argument(
+        '--similarity_function',
+        choices=get_similarity_functions_dict().keys(),
+        required=True,
+        help='Specify similarity to be used',
+    )
     return parser
 
 
 def run():
     args = get_argument_parser().parse_args()
 
-    similarity_function = common_vertices
+    similarity_function = get_similarity_functions_dict()[args.similarity_function]
 
     min_charts_data = []
     mean_charts_data = []
