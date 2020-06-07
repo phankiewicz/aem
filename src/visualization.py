@@ -11,3 +11,9 @@ def visualize_cycle_and_vertices(cycle, vertices_coordinates):
     for x, y in vertices_coordinates:
         plt.plot(x, y, 'ro')
     plt.show()
+
+
+def visualize_similarity(chart_data):
+    for x, y in chart_data:
+        plt.plot(x, y, 'ro')
+    plt.show()
