@@ -96,8 +96,8 @@ def run():
                 if other_solution != solution
             ]
             mean_similarity = sum(similarities) / len(similarities)
-
-            min_similarities.append((cost, min_similarity))
+            if solution != min_solution:
+                min_similarities.append((cost, min_similarity))
             mean_similarities.append((cost, mean_similarity))
 
         min_charts_data.append(min_similarities)
