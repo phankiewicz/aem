@@ -16,4 +16,6 @@ def visualize_cycle_and_vertices(cycle, vertices_coordinates):
 def visualize_similarity(chart_data):
     for x, y in chart_data:
         plt.plot(x, y, 'ro')
+    plt.xlabel('Wartość funkcji celu')
+    plt.ylabel('Podobieństwo')
     plt.show()
