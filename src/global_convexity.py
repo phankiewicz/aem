@@ -2,6 +2,7 @@ import argparse
 import os
 
 import numpy as np
+from export import export_similarities
 from local_search import local_search_greedy, swap_edges, swap_edges_diff
 from run import create_distance_matrix, import_vertices_coordinates
 from scipy.stats import pearsonr
@@ -101,11 +102,17 @@ def run():
             mean_similarities.append((cost, mean_similarity))
 
         min_charts_data.append(min_similarities)
+        export_similarities(
+            f'{args.similarity_function}_min_{instance_name}', min_similarities
+        )
         X, Y = np.array(min_similarities).T
         correlation, _ = pearsonr(X, Y)
         table.add_row([instance_name, 'min', correlation])
 
         mean_charts_data.append(mean_similarities)
+        export_similarities(
+            f'{args.similarity_function}_mean_{instance_name}', mean_similarities
+        )
         X, Y = np.array(mean_similarities).T
         correlation, _ = pearsonr(X, Y)
         table.add_row([instance_name, 'mean', correlation])
